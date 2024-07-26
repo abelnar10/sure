@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Apuestas</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Calculadora de Apuestas</h1>
+        <div class="form-group">
+            <label for="primerApuesta">Valor de la Primera Apuesta</label>
+            <input type="number" class="form-control" id="primerApuesta" onchange="calcular()">
+            <button class="btn btn-primary mt-2" onclick="llenarApuesta(250000)">250000</button>
+            <button class="btn btn-primary mt-2" onclick="llenarApuesta(300000)">300000</button>
+        </div>
+        <div class="form-group">
+            <label for="cuotaPrimeraCasa">Cuota de la Primera Casa</label>
+            <input type="number" class="form-control" id="cuotaPrimeraCasa" step="0.01" onchange="calcular()">
+        </div>
+        <div class="form-group">
+            <label for="valorPagadoPrimeraCasa">Valor Pagado en la Primera Casa</label>
+            <input type="number" class="form-control" id="valorPagadoPrimeraCasa" readonly>
+        </div>
+        <div class="form-group">
+            <label for="cuotaMinimaSegundaCasa">Cuota Mínima en la Segunda Casa</label>
+            <input type="number" class="form-control" id="cuotaMinimaSegundaCasa" readonly>
+        </div>
+        <div class="form-group">
+            <label for="cuotaSegundaCasa">Cuota de la Segunda Casa</label>
+            <input type="number" class="form-control" id="cuotaSegundaCasa" step="0.01" onchange="calcular()">
+            <button class="btn btn-secondary mt-2" onclick="ajustarCuota(0.01)">+</button>
+            <button class="btn btn-secondary mt-2" onclick="ajustarCuota(-0.01)">-</button>
+        </div>
+        <div class="form-group">
+            <label for="valorSegundaApuesta">Valor de la Segunda Apuesta</label>
+            <input type="number" class="form-control" id="valorSegundaApuesta" readonly>
+        </div>
+    </div>
+</body>
+</html>
