@@ -48,7 +48,7 @@ function ajustarCuota(incremento) {
 }
 
 document.querySelectorAll('input[type="number"]').forEach(input => {
-    input.addEventListener('blur', (e) => {
+    input.addEventListener('input', (e) => {
         e.target.value = e.target.value.replace(',', '.');
         calcular();
     });
