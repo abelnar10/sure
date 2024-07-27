@@ -1,12 +1,12 @@
 function calcular() {
-    const primerApuesta = parseFloat(document.getElementById('primerApuesta').value.replace(',', '.'));
-    const cuotaPrimeraCasa = parseFloat(document.getElementById('cuotaPrimeraCasa').value.replace(',', '.'));
-    const cuotaSegundaCasa = parseFloat(document.getElementById('cuotaSegundaCasa').value.replace(',', '.'));
+    const primerApuesta = parseFloat(document.getElementById('primerApuesta').value);
+    const cuotaPrimeraCasa = parseFloat(document.getElementById('cuotaPrimeraCasa').value);
+    const cuotaSegundaCasa = parseFloat(document.getElementById('cuotaSegundaCasa').value);
 
     if (!isNaN(primerApuesta) && !isNaN(cuotaPrimeraCasa)) {
         const valorPagado = primerApuesta * cuotaPrimeraCasa;
         document.getElementById('valorPagadoPrimeraCasa').value = valorPagado.toFixed(2);
-
+        
         if (!isNaN(cuotaSegundaCasa)) {
             const valorSegundaApuesta = valorPagado / cuotaSegundaCasa;
             const pagoSegundaCasa = valorSegundaApuesta * cuotaSegundaCasa;
@@ -15,7 +15,7 @@ function calcular() {
             document.getElementById('valorSegundaApuesta').value = valorSegundaApuesta.toFixed(2);
             document.getElementById('pagoSegundaCasa').value = pagoSegundaCasa.toFixed(2);
             document.getElementById('ganancia').value = ganancia.toFixed(2);
-
+            
             const gananciaElement = document.getElementById('ganancia');
             if (ganancia < primerApuesta) {
                 gananciaElement.style.color = 'red';
@@ -35,21 +35,14 @@ function llenarApuesta(valor) {
 
 function ajustarCuota(incremento) {
     const cuotaSegundaCasaInput = document.getElementById('cuotaSegundaCasa');
-    let cuotaSegundaCasa = parseFloat(cuotaSegundaCasaInput.value.replace(',', '.'));
-
+    let cuotaSegundaCasa = parseFloat(cuotaSegundaCasaInput.value);
+    
     if (isNaN(cuotaSegundaCasa)) {
         cuotaSegundaCasa = 0;
     }
 
     cuotaSegundaCasa += incremento;
-    cuotaSegundaCasaInput.value = cuotaSegundaCasa.toFixed(2).replace('.', ',');
+    cuotaSegundaCasaInput.value = cuotaSegundaCasa.toFixed(2);
 
     calcular();
 }
-
-document.querySelectorAll('input[type="number"]').forEach(input => {
-    input.addEventListener('input', (e) => {
-        e.target.value = e.target.value.replace(',', '.');
-        calcular();
-    });
-});
