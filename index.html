@@ -18,7 +18,13 @@
         </div>
         <div class="form-group">
             <label for="cuotaPrimeraCasa">Cuota de la Primera Casa</label>
-            <input type="number" class="form-control" id="cuotaPrimeraCasa" step="0.01" onchange="calcular()">
+            <div class="input-group">
+                <input type="number" class="form-control" id="cuotaPrimeraCasa" step="0.01" onchange="calcular()">
+                <div class="input-group-append">
+                    <button class="btn btn-secondary" onclick="ajustarCuota('cuotaPrimeraCasa', 0.01)">+</button>
+                    <button class="btn btn-secondary" onclick="ajustarCuota('cuotaPrimeraCasa', -0.01)">-</button>
+                </div>
+            </div>
         </div>
         <div class="form-group">
             <label for="valorPagadoPrimeraCasa">Valor Pagado en la Primera Casa</label>
@@ -26,9 +32,13 @@
         </div>
         <div class="form-group">
             <label for="cuotaSegundaCasa">Cuota de la Segunda Casa</label>
-            <input type="number" class="form-control" id="cuotaSegundaCasa" step="0.01" onchange="calcular()">
-            <button class="btn btn-secondary mt-2" onclick="ajustarCuota(0.01)">+</button>
-            <button class="btn btn-secondary mt-2" onclick="ajustarCuota(-0.01)">-</button>
+            <div class="input-group">
+                <input type="number" class="form-control" id="cuotaSegundaCasa" step="0.01" onchange="calcular()">
+                <div class="input-group-append">
+                    <button class="btn btn-secondary" onclick="ajustarCuota('cuotaSegundaCasa', 0.01)">+</button>
+                    <button class="btn btn-secondary" onclick="ajustarCuota('cuotaSegundaCasa', -0.01)">-</button>
+                </div>
+            </div>
         </div>
         <div class="form-group">
             <label for="valorSegundaApuesta">Valor de la Segunda Apuesta</label>

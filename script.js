@@ -6,16 +6,16 @@ function calcular() {
     if (!isNaN(primerApuesta) && !isNaN(cuotaPrimeraCasa)) {
         const valorPagado = primerApuesta * cuotaPrimeraCasa;
         document.getElementById('valorPagadoPrimeraCasa').value = valorPagado.toFixed(2);
-        
+
         if (!isNaN(cuotaSegundaCasa)) {
             const valorSegundaApuesta = valorPagado / cuotaSegundaCasa;
             const pagoSegundaCasa = valorSegundaApuesta * cuotaSegundaCasa;
-            const ganancia = pagoSegundaCasa - valorSegundaApuesta;
+            const ganancia = pagoSegundaCasa - valorSegundaApuesta ;
 
             document.getElementById('valorSegundaApuesta').value = valorSegundaApuesta.toFixed(2);
             document.getElementById('pagoSegundaCasa').value = pagoSegundaCasa.toFixed(2);
             document.getElementById('ganancia').value = ganancia.toFixed(2);
-            
+
             const gananciaElement = document.getElementById('ganancia');
             if (ganancia < primerApuesta) {
                 gananciaElement.style.color = 'red';
@@ -33,16 +33,17 @@ function llenarApuesta(valor) {
     calcular();
 }
 
-function ajustarCuota(incremento) {
-    const cuotaSegundaCasaInput = document.getElementById('cuotaSegundaCasa');
-    let cuotaSegundaCasa = parseFloat(cuotaSegundaCasaInput.value);
-    
-    if (isNaN(cuotaSegundaCasa)) {
-        cuotaSegundaCasa = 0;
+function ajustarCuota(id, incremento) {
+    const cuotaInput = document.getElementById(id);
+    let cuota = parseFloat(cuotaInput.value);
+
+    if (isNaN(cuota)) {
+        cuota = 0;
     }
 
-    cuotaSegundaCasa += incremento;
-    cuotaSegundaCasaInput.value = cuotaSegundaCasa.toFixed(2);
+    cuota = Math.max(0, cuota + incremento);
+    cuotaInput.value = cuota.toFixed(2);
 
+    // Llamamos a la función calcular cada vez que ajustamos la cuota
     calcular();
 }
