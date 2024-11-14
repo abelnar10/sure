@@ -1,57 +1,211 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Apuestas</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <script src="script.js" defer></script>
+    <style>
+        .calculator {
+            max-width: 300px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        #display {
+            width: 100%;
+            height: 50px;
+            margin-bottom: 10px;
+            font-size: 24px;
+            text-align: right;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            background-color: #fff;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .divide {
+            grid-column: span 2;
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .equals {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        #currencySelect {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .results {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+        }
+
+        #realValue {
+            color: #666;
+            font-size: 0.8em;
+            margin-top: 5px;
+            text-align: right;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="mt-5">Calculadora de Apuestas</h1>
-        <div class="form-group">
-            <label for="primerApuesta">Valor de la Primera Apuesta</label>
-            <input type="number" class="form-control" id="primerApuesta" onchange="calcular()">
-            <button class="btn btn-primary mt-2" onclick="llenarApuesta(250000)">250000</button>
-            <button class="btn btn-primary mt-2" onclick="llenarApuesta(300000)">300000</button>
+    <div class="calculator">
+        <select id="currencySelect">
+            <option value="COP">Peso Colombiano</option>
+            <option value="EUR">Euro</option>
+            <option value="USD">Dólar</option>
+        </select>
+        <input type="text" id="display" readonly>
+        <div id="realValue"></div>
+        <div class="buttons">
+            <button onclick="addNumber('7')">7</button>
+            <button onclick="addNumber('8')">8</button>
+            <button onclick="addNumber('9')">9</button>
+            <button onclick="addNumber('4')">4</button>
+            <button onclick="addNumber('5')">5</button>
+            <button onclick="addNumber('6')">6</button>
+            <button onclick="addNumber('1')">1</button>
+            <button onclick="addNumber('2')">2</button>
+            <button onclick="addNumber('3')">3</button>
+            <button onclick="addNumber('0')">0</button>
+            <button onclick="addNumber('.')">.</button>
+            <button onclick="clearDisplay()">C</button>
+            <button onclick="divide()" class="divide">÷</button>
+            <button onclick="calculate()" class="equals">=</button>
         </div>
-        <div class="form-group">
-            <label for="cuotaPrimeraCasa">Cuota de la Primera Casa</label>
-            <div class="input-group">
-                <input type="number" class="form-control" id="cuotaPrimeraCasa" step="0.01" onchange="calcular()">
-                <div class="input-group-append">
-                    <button class="btn btn-secondary" onclick="ajustarCuota('cuotaPrimeraCasa', 0.01)">+</button>
-                    <button class="btn btn-secondary" onclick="ajustarCuota('cuotaPrimeraCasa', -0.01)">-</button>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="valorPagadoPrimeraCasa">Valor Pagado en la Primera Casa</label>
-            <input type="number" class="form-control" id="valorPagadoPrimeraCasa" readonly>
-        </div>
-        <div class="form-group">
-            <label for="cuotaSegundaCasa">Cuota de la Segunda Casa</label>
-            <div class="input-group">
-                <input type="number" class="form-control" id="cuotaSegundaCasa" step="0.01" onchange="calcular()">
-                <div class="input-group-append">
-                    <button class="btn btn-secondary" onclick="ajustarCuota('cuotaSegundaCasa', 0.01)">+</button>
-                    <button class="btn btn-secondary" onclick="ajustarCuota('cuotaSegundaCasa', -0.01)">-</button>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="valorSegundaApuesta">Valor de la Segunda Apuesta</label>
-            <input type="number" class="form-control" id="valorSegundaApuesta" readonly>
-        </div>
-        <div class="form-group">
-            <label for="pagoSegundaCasa">Pago en la Segunda Casa</label>
-            <input type="number" class="form-control" id="pagoSegundaCasa" readonly>
-        </div>
-        <div class="form-group">
-            <label for="ganancia">Ganancia</label>
-            <input type="number" class="form-control" id="ganancia" readonly>
+        <div class="results">
+            <p>Resultado en:</p>
+            <div id="copResult">COP: </div>
+            <div id="usdResult">USD: </div>
+            <div id="eurResult">EUR: </div>
         </div>
     </div>
+
+    <script>
+        let currentNumber = '';
+        let firstNumber = null;
+        let awaitingSecondNumber = false;
+        let operationPending = false;
+
+        // Tasas de cambio
+        const exchangeRates = {
+            COP: 1,
+            USD: 0.00022, // 1 COP = 0.00025 USD
+            EUR: 0.00021  // 1 COP = 0.00023 EUR
+        };
+
+        function addNumber(num) {
+            if (awaitingSecondNumber) {
+                currentNumber = num;
+                awaitingSecondNumber = false;
+            } else {
+                currentNumber += num;
+            }
+            updateDisplay();
+        }
+
+        function getAdjustedValue(value) {
+            const selectedCurrency = document.getElementById('currencySelect').value;
+            if (selectedCurrency === 'COP' && !value.includes('.')) {
+                return parseFloat(value) * 1000;
+            }
+            return parseFloat(value);
+        }
+
+        function updateDisplay() {
+            document.getElementById('display').value = currentNumber;
+            
+            // Mostrar el valor real para COP
+            const selectedCurrency = document.getElementById('currencySelect').value;
+            if (selectedCurrency === 'COP' && currentNumber && !currentNumber.includes('.')) {
+                document.getElementById('realValue').textContent = 
+                    `Valor a operar: ${(parseFloat(currentNumber) * 1000).toLocaleString()}`;
+            } else {
+                document.getElementById('realValue').textContent = '';
+            }
+        }
+
+        function clearDisplay() {
+            currentNumber = '';
+            firstNumber = null;
+            awaitingSecondNumber = false;
+            operationPending = false;
+            updateDisplay();
+            updateResults(0);
+        }
+
+        function divide() {
+            if (firstNumber === null && currentNumber !== '') {
+                firstNumber = getAdjustedValue(currentNumber);
+                awaitingSecondNumber = true;
+                operationPending = true;
+                currentNumber = '';
+            }
+        }
+
+        function calculate() {
+            if (operationPending && currentNumber !== '') {
+                const secondNumber = getAdjustedValue(currentNumber);
+                if (secondNumber === 0) {
+                    alert('No se puede dividir por cero');
+                    return;
+                }
+                
+                const result = firstNumber / secondNumber;
+                const selectedCurrency = document.getElementById('currencySelect').value;
+                
+                // El resultado ya está en la moneda seleccionada
+                let resultInCOP;
+                if (selectedCurrency === 'COP') {
+                    resultInCOP = result;
+                } else if (selectedCurrency === 'USD') {
+                    resultInCOP = result / exchangeRates.USD;
+                } else if (selectedCurrency === 'EUR') {
+                    resultInCOP = result / exchangeRates.EUR;
+                }
+
+                updateResults(resultInCOP);
+                
+                currentNumber = result.toFixed(2);
+                firstNumber = null;
+                operationPending = false;
+                updateDisplay();
+            }
+        }
+
+        function updateResults(amountInCOP) {
+            document.getElementById('copResult').textContent = 
+                `COP: ${amountInCOP.toFixed(2)}`;
+            document.getElementById('usdResult').textContent = 
+                `USD: ${(amountInCOP * exchangeRates.USD).toFixed(2)}`;
+            document.getElementById('eurResult').textContent = 
+                `EUR: ${(amountInCOP * exchangeRates.EUR).toFixed(2)}`;
+        }
+    </script>
 </body>
 </html>
