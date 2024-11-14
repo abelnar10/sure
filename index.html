@@ -58,7 +58,6 @@
         .equals {
             background-color: #2196F3;
             color: white;
-            grid-column: span 2; /* El botón "=" ocupa dos columnas */
         }
 
         .clear {
@@ -113,9 +112,9 @@
             <button onclick="addNumber('1')">1</button>
             <button onclick="addNumber('2')">2</button>
             <button onclick="addNumber('3')">3</button>
+            <button onclick="calculate()" class="equals">=</button>
             <button onclick="addNumber('0')">0</button>
             <button onclick="addNumber('.')">.</button>
-            <button onclick="calculate()" class="equals">=</button>
         </div>
         <div class="results">
             <p>Resultado en:</p>
