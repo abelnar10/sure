@@ -7,7 +7,7 @@
     <style>
         /* Diseño general de la calculadora */
         .calculator {
-            max-width: 90%; /* Ajuste automático al ancho */
+            max-width: 90%;
             margin: 20px auto;
             padding: 20px;
             background-color: #f0f0f0;
@@ -50,7 +50,7 @@
         }
 
         /* Botones especiales */
-        .divide {
+        .operator {
             background-color: #4CAF50;
             color: white;
         }
@@ -88,7 +88,6 @@
             margin-top: 10px;
             text-align: right;
         }
-
     </style>
 </head>
 <body>
@@ -108,13 +107,14 @@
             <button onclick="addNumber('4')">4</button>
             <button onclick="addNumber('5')">5</button>
             <button onclick="addNumber('6')">6</button>
-            <button onclick="divide()" class="divide">÷</button>
+            <button onclick="setOperation('divide')" class="operator">÷</button>
             <button onclick="addNumber('1')">1</button>
             <button onclick="addNumber('2')">2</button>
             <button onclick="addNumber('3')">3</button>
-            <button onclick="calculate()" class="equals">=</button>
+            <button onclick="setOperation('add')" class="operator">+</button>
             <button onclick="addNumber('0')">0</button>
             <button onclick="addNumber('.')">.</button>
+            <button onclick="calculate()" class="equals" style="grid-column: span 2">=</button>
         </div>
         <div class="results">
             <p>Resultado en:</p>
@@ -129,15 +129,54 @@
         let firstNumber = null;
         let awaitingSecondNumber = false;
         let operationPending = false;
+        let currentOperation = null;
 
         // Tasas de cambio
         const exchangeRates = {
             COP: 1,
-            USD: 0.00022, // 1 COP = 0.00025 USD
-            EUR: 0.00021  // 1 COP = 0.00023 EUR
+            USD: 0.00022,
+            EUR: 0.00021
         };
 
+        // Agregar event listener para el teclado
+        document.addEventListener('keydown', handleKeyPress);
+
+        function handleKeyPress(e) {
+            // Manejar diferentes tipos de teclas
+            if (/^[0-9.]$/.test(e.key)) {
+                e.preventDefault(); // Prevenir la entrada por defecto
+                addNumber(e.key);
+            } else if (e.key === '+') {
+                e.preventDefault();
+                setOperation('add');
+            } else if (e.key === '/') {
+                e.preventDefault();
+                setOperation('divide');
+            } else if (e.key === 'Enter' || e.key === '=') {
+                e.preventDefault();
+                calculate();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                clearDisplay();
+            } else if (e.key === 'Backspace') {
+                e.preventDefault();
+                handleBackspace();
+            }
+        }
+
+        function handleBackspace() {
+            if (currentNumber.length > 0) {
+                currentNumber = currentNumber.slice(0, -1);
+                updateDisplay();
+            }
+        }
+
         function addNumber(num) {
+            // Validar que solo se pueda agregar un punto decimal
+            if (num === '.' && currentNumber.includes('.')) {
+                return;
+            }
+            
             if (awaitingSecondNumber) {
                 currentNumber = num;
                 awaitingSecondNumber = false;
@@ -157,12 +196,17 @@
 
         function updateDisplay() {
             document.getElementById('display').value = currentNumber;
-            
-            // Mostrar el valor real para COP
+            updateRealValue();
+        }
+
+        function updateRealValue() {
             const selectedCurrency = document.getElementById('currencySelect').value;
             if (selectedCurrency === 'COP' && currentNumber && !currentNumber.includes('.')) {
-                document.getElementById('realValue').textContent = 
-                    `Valor a operar: ${(parseFloat(currentNumber) * 1000).toLocaleString()}`;
+                const value = parseFloat(currentNumber);
+                if (!isNaN(value)) {
+                    document.getElementById('realValue').textContent = 
+                        `Valor a operar: ${(value * 1000).toLocaleString()}`;
+                }
             } else {
                 document.getElementById('realValue').textContent = '';
             }
@@ -173,15 +217,17 @@
             firstNumber = null;
             awaitingSecondNumber = false;
             operationPending = false;
+            currentOperation = null;
             updateDisplay();
             updateResults(0);
         }
 
-        function divide() {
+        function setOperation(operation) {
             if (firstNumber === null && currentNumber !== '') {
                 firstNumber = getAdjustedValue(currentNumber);
                 awaitingSecondNumber = true;
                 operationPending = true;
+                currentOperation = operation;
                 currentNumber = '';
             }
         }
@@ -189,15 +235,20 @@
         function calculate() {
             if (operationPending && currentNumber !== '') {
                 const secondNumber = getAdjustedValue(currentNumber);
-                if (secondNumber === 0) {
-                    alert('No se puede dividir por cero');
-                    return;
-                }
+                let result;
                 
-                const result = firstNumber / secondNumber;
+                if (currentOperation === 'divide') {
+                    if (secondNumber === 0) {
+                        alert('No se puede dividir por cero');
+                        return;
+                    }
+                    result = firstNumber / secondNumber;
+                } else if (currentOperation === 'add') {
+                    result = firstNumber + secondNumber;
+                }
+
                 const selectedCurrency = document.getElementById('currencySelect').value;
                 
-                // El resultado ya está en la moneda seleccionada
                 let resultInCOP;
                 if (selectedCurrency === 'COP') {
                     resultInCOP = result;
@@ -212,6 +263,7 @@
                 currentNumber = result.toFixed(2);
                 firstNumber = null;
                 operationPending = false;
+                currentOperation = null;
                 updateDisplay();
             }
         }
