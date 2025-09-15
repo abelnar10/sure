@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de División a COP (Corregido)</title>
+    <title>:)</title>
     <style>
         body {
             font-family: sans-serif;
@@ -14,19 +14,18 @@
             background-color: #f0f0f0;
             margin: 0;
         }
-
         .container {
             background-color: white;
             padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             text-align: center;
+            width: 90%;
+            max-width: 800px;
         }
-
         h1 {
             color: #333;
         }
-
         input {
             padding: 0.5rem;
             margin: 0.5rem 0;
@@ -35,55 +34,138 @@
             width: 100%;
             box-sizing: border-box;
         }
-
-        #resultado {
+        #resultados-container {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            text-align: left;
             margin-top: 1.5rem;
-            font-size: 1.25rem;
+            flex-wrap: wrap; /* Permite que las columnas se envuelvan en pantallas pequeñas */
+        }
+        .columna {
+            flex: 1;
+            min-width: 250px;
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 6px;
+        }
+        .columna h3 {
+            margin-top: 0;
+            color: #555;
+        }
+        .columna p {
+            font-size: 1.1rem;
             font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        .columna span {
             color: #28a745;
+            font-weight: normal;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>perezosos hptas</h1>
-        <input type="number" id="dividendo" placeholder="Ingresa el pago potencial">
+        <h1>:)</h1>
+        <input type="text" id="dividendo" placeholder="Ingresa el pago potencial (ej. 10+90)">
         <input type="number" id="divisor" placeholder="Ingresa la cuota">
-        <p id="resultado"></p>
+        
+        <div id="resultados-container">
+            <div class="columna">
+                <h3>Rush/pinna a beto</h3>
+                <p>Resultado en COP: <span id="resultado-cop-1"></span></p>
+                <p>Equivalente en USD: <span id="resultado-usd-1"></span></p>
+            </div>
+            <div class="columna">
+                <h3>beto a rush/pinna</h3>
+                <p>Resultado en USD: <span id="resultado-usd-2"></span></p>
+                <p>Equivalente en COP: <span id="resultado-cop-2"></span></p>
+            </div>
+        </div>
     </div>
 
     <script>
         function realizarDivision() {
-            const dividendo = parseFloat(document.getElementById('dividendo').value);
+            const dividendoString = document.getElementById('dividendo').value;
             const divisor = parseFloat(document.getElementById('divisor').value);
-            const resultadoElement = document.getElementById('resultado');
+            
+            const tasaCambioUSD = 0.00025; // Tasa de cambio aproximada: 1 COP = 0.00025 USD
+            const tasaCambioCOP = 1 / tasaCambioUSD; // 1 USD = 4000 COP
 
-            if (isNaN(dividendo) || isNaN(divisor)) {
-                resultadoElement.textContent = "Por favor, ingresa números válidos.";
-                resultadoElement.style.color = "red";
+            const resultadoCOP1 = document.getElementById('resultado-cop-1');
+            const resultadoUSD1 = document.getElementById('resultado-usd-1');
+            const resultadoUSD2 = document.getElementById('resultado-usd-2');
+            const resultadoCOP2 = document.getElementById('resultado-cop-2');
+            
+            const limpiarResultados = () => {
+                resultadoCOP1.textContent = '';
+                resultadoUSD1.textContent = '';
+                resultadoUSD2.textContent = '';
+                resultadoCOP2.textContent = '';
+            };
+
+            if (isNaN(divisor) || dividendoString === "") {
+                limpiarResultados();
+                return;
+            }
+
+            let dividendo;
+            try {
+                dividendo = Function('return ' + dividendoString)();
+            } catch (e) {
+                limpiarResultados();
                 return;
             }
 
             if (divisor === 0) {
-                resultadoElement.textContent = "Error: No se puede dividir por cero.";
-                resultadoElement.style.color = "red";
+                limpiarResultados();
+                return;
             } else {
                 const resultado = dividendo / divisor;
 
-                // Convierte el resultado a un número entero
-                const valorEntero = Math.round(resultado * 1000);
+                // --- Columna 1: de COP a USD ---
+                const valorEnMiles = Math.round(resultado) * 1000;
+                const copAFormatear = valorEnMiles;
+                const usdCalculado = copAFormatear * tasaCambioUSD;
 
-                // Formatea el número como moneda colombiana (COP)
-                const formatoCOP = new Intl.NumberFormat('es-CO', { 
-                    style: 'currency', 
+                const formatoCOP1 = new Intl.NumberFormat('es-CO', {
+                    style: 'currency',
                     currency: 'COP',
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 0
-                }).format(valorEntero);
+                }).format(copAFormatear);
 
-                resultadoElement.textContent = `El resultado es: ${formatoCOP}`;
-                resultadoElement.style.color = "#28a745";
+                const formatoUSD1 = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(usdCalculado);
+
+                resultadoCOP1.textContent = formatoCOP1;
+                resultadoUSD1.textContent = formatoUSD1;
+
+                // --- Columna 2: de USD a COP ---
+                const usdAFormatear = resultado;
+                const copCalculado = Math.round(usdAFormatear * tasaCambioCOP);
+
+                const formatoUSD2 = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(usdAFormatear);
+
+                const formatoCOP2 = new Intl.NumberFormat('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(copCalculado);
+
+                resultadoUSD2.textContent = formatoUSD2;
+                resultadoCOP2.textContent = formatoCOP2;
             }
         }
 
@@ -93,6 +175,5 @@
         dividendoInput.addEventListener('input', realizarDivision);
         divisorInput.addEventListener('input', realizarDivision);
     </script>
-
 </body>
 </html>
