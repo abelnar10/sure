@@ -3,554 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Arbitraje</title>
+    <title>Calculadora de División a COP (Corregido)</title>
     <style>
-        /* * Estilos CSS para la interfaz de la calculadora.
-         * Se utilizan Flexbox y Grid para un diseño responsivo.
-         */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background-color: #e0e0e0;
+            height: 100vh;
+            background-color: #f0f0f0;
             margin: 0;
         }
 
-        .calculator-grid {
-            width: 90%; 
-            max-width: 350px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            padding: 20px;
-            background-color: #3a3a3a;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-        }
-
-        .output {
-            grid-column: 1 / -1;
-            background-color: #1c1c1c;
-            color: #ffffff;
-            padding: 15px 20px;
-            text-align: right;
+        .container {
+            background-color: white;
+            padding: 2rem;
             border-radius: 8px;
-            font-size: 2.8em;
-            word-wrap: break-word;
-            word-break: break-all;
-            margin-bottom: 10px;
-            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
 
-        .output .current-operand {
-            font-size: 1em;
-            min-height: 1.2em;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-        }
-        
-        .output .previous-operand {
-            font-size: 0.5em;
-            color: rgba(255, 255, 255, 0.75);
-            min-height: 1em;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            position: relative;
-        }
-        
-        /* Contenedor para los resultados en dos líneas */
-        .result-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            font-size: 0.8em;
-            line-height: 1.2;
+        h1 {
+            color: #333;
         }
 
-        .editable-input {
-            background: none;
-            border: none;
-            color: white;
-            font: inherit;
-            text-align: right;
-            outline: none;
-            width: auto;
-            min-width: 50px;
-            text-decoration: underline;
+        input {
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        button {
-            cursor: pointer;
-            font-size: 1.8em;
-            border: none;
-            outline: none;
-            background-color: #606060;
-            color: white;
-            border-radius: 8px;
-            padding: 15px 0;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-        }
-
-        button:hover {
-            background-color: #7a7a7a;
-            transform: scale(1.02);
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        .operator {
-            background-color: #ff9500;
-            color: white;
-        }
-
-        .operator:hover {
-            background-color: #e08b00;
-        }
-
-        .all-clear {
-            background-color: #a6a6a6;
-            color: #1c1c1c;
-        }
-
-        .all-clear:hover {
-            background-color: #b8b8b8;
-        }
-        
-        .active {
-            background-color: #007bff;
-        }
-
-        .calculator-grid .span-two {
-            grid-column: span 2;
-        }
-
-        .clickable-operand {
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        
-        .currency-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            grid-column: 1 / -1;
-        }
-        .currency-button {
-            font-size: 1.2em;
-            padding: 10px;
-            background-color: #555;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
+        #resultado {
+            margin-top: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #28a745;
         }
     </style>
 </head>
 <body>
 
-    <div class="calculator-grid">
-        <div class="output">
-            <div class="previous-operand" data-previous-operand></div>
-            <div class="current-operand" data-current-operand>0</div>
-        </div>
-        <div class="currency-buttons">
-            <button class="currency-button" data-currency="COP">COP</button>
-            <button class="currency-button" data-currency="USD">USD</button>
-        </div>
-        <button class="all-clear" data-all-clear>AC</button>
-        <button data-delete>DEL</button>
-        <button class="operator span-two" data-operator="divide">/</button>
-        
-        <button data-number>7</button>
-        <button data-number>8</button>
-        <button data-number>9</button>
-        <button style="background-color: #3a3a3a; cursor: default;"></button> 
-        <button data-number>4</button>
-        <button data-number>5</button>
-        <button data-number>6</button>
-        <button style="background-color: #3a3a3a; cursor: default;"></button> 
-        <button data-number>1</button>
-        <button data-number>2</button>
-        <button data-number>3</button>
-        <button class="operator" data-operator="add">+</button>
-        <button data-number>0</button>
-        <button data-number>.</button>
-        <button class="operator span-two" data-equals>=</button>
-
+    <div class="container">
+        <h1>perezosos hptas</h1>
+        <input type="number" id="dividendo" placeholder="Ingresa el pago potencial">
+        <input type="number" id="divisor" placeholder="Ingresa la cuota">
+        <p id="resultado"></p>
     </div>
 
     <script>
-        /**
-         * Clase principal que maneja la lógica de la calculadora.
-         * Gestiona los estados (normal, resultado, edición) y las operaciones.
-         */
-        class Calculator {
-            constructor(previousOperandTextElement, currentOperandTextElement) {
-                this.previousOperandTextElement = previousOperandTextElement;
-                this.currentOperandTextElement = currentOperandTextElement;
-                this.usdToCopRate = 3894.3843; // Tasa de respaldo.
-                this.currentCurrency = 'COP'; 
-                this.clear();
-                this.fetchExchangeRate();
+        function realizarDivision() {
+            const dividendo = parseFloat(document.getElementById('dividendo').value);
+            const divisor = parseFloat(document.getElementById('divisor').value);
+            const resultadoElement = document.getElementById('resultado');
+
+            if (isNaN(dividendo) || isNaN(divisor)) {
+                resultadoElement.textContent = "Por favor, ingresa números válidos.";
+                resultadoElement.style.color = "red";
+                return;
             }
 
-            async fetchExchangeRate() {
-                try {
-                    const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-                    const data = await response.json();
-                    if (data.rates && data.rates.COP) {
-                        this.usdToCopRate = data.rates.COP;
-                    } else {
-                        console.error('No se pudo obtener la tasa de cambio de COP. Usando valor de respaldo.');
-                    }
-                } catch (error) {
-                    console.error('Error al obtener la tasa de cambio:', error);
-                    console.error('Usando valor de respaldo.');
-                }
-            }
-            
-            setCurrency(currency) {
-                this.currentCurrency = currency;
-                this.updateDisplay();
-            }
+            if (divisor === 0) {
+                resultadoElement.textContent = "Error: No se puede dividir por cero.";
+                resultadoElement.style.color = "red";
+            } else {
+                const resultado = dividendo / divisor;
 
-            convertResult(value) {
-                if (this.currentCurrency === 'COP') {
-                    const copValueBase = Math.floor(value);
-                    const copResult = copValueBase * 1000;
-                    const usdResult = copResult / this.usdToCopRate;
-                    return { cop: copResult, usd: usdResult };
-                } else if (this.currentCurrency === 'USD') {
-                    const usdResult = value;
-                    const copResult = usdResult * this.usdToCopRate;
-                    return { cop: copResult, usd: usdResult };
-                }
-                return { cop: null, usd: null };
-            }
+                // Convierte el resultado a un número entero
+                const valorEntero = Math.round(resultado * 1000);
 
-            clear() {
-                this.currentOperand = '0';
-                this.previousOperand = '';
-                this.operation = undefined;
-                this.isResult = false;
-                this.isEditing = false;
-                this.firstOperand = null;
-                this.secondOperand = null;
-                this.operatorSymbol = null;
-                this.editingIndex = null;
-                this.updateDisplay();
-            }
-            
-            delete() {
-                if (this.isEditing) {
-                    const activeInput = this.previousOperandTextElement.querySelector(`[data-index="${this.editingIndex}"]`);
-                    if (activeInput) {
-                        activeInput.value = activeInput.value.slice(0, -1);
-                        this.recalculateFromEdit();
-                    }
-                    return;
-                }
-                
-                if (this.isResult) {
-                    this.clear();
-                    return;
-                }
-                
-                this.currentOperand = this.currentOperand.slice(0, -1);
-                if (this.currentOperand === '') {
-                    this.currentOperand = '0';
-                }
-                this.updateDisplay();
-            }
-            
-            processNumberInput(number) {
-                if (this.isEditing) {
-                    const activeInput = this.previousOperandTextElement.querySelector(`[data-index="${this.editingIndex}"]`);
-                    if (activeInput) {
-                        const isTextSelected = activeInput.selectionStart === 0 && activeInput.selectionEnd === activeInput.value.length;
-                        if (isTextSelected) {
-                             activeInput.value = '';
-                        }
-                        
-                        if (number === '.' && activeInput.value.includes('.')) {
-                            return;
-                        }
-                        
-                        if (activeInput.value === '0' && number !== '.' && !isTextSelected) {
-                            activeInput.value = number;
-                        } else {
-                            activeInput.value += number;
-                        }
-                        
-                        this.recalculateFromEdit();
-                    }
-                    return;
-                }
-                
-                if (this.isResult) {
-                    this.clear();
-                }
-                
-                if (number === '.' && this.currentOperand.includes('.')) return;
-                
-                if (this.currentOperand === '0' && number !== '.') {
-                    this.currentOperand = number.toString();
-                } else {
-                    this.currentOperand += number.toString();
-                }
-                this.updateDisplay();
-            }
+                // Formatea el número como moneda colombiana (COP)
+                const formatoCOP = new Intl.NumberFormat('es-CO', { 
+                    style: 'currency', 
+                    currency: 'COP',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(valorEntero);
 
-            recalculateFromEdit() {
-                const firstInput = this.previousOperandTextElement.querySelector('[data-index="0"]');
-                const secondInput = this.previousOperandTextElement.querySelector('[data-index="1"]');
-                
-                if (!firstInput || !secondInput) return;
-
-                let prev = parseFloat(firstInput.value);
-                let current = parseFloat(secondInput.value);
-                
-                if (isNaN(prev) || isNaN(current)) {
-                    this.currentOperandTextElement.innerText = '';
-                    return;
-                }
-                
-                let computation;
-                switch (this.operatorSymbol) {
-                    case '+':
-                        computation = prev + current;
-                        break;
-                    case '/':
-                        if (current === 0) {
-                            computation = 'Error';
-                        } else {
-                            computation = prev / current;
-                        }
-                        break;
-                    default:
-                        return;
-                }
-                this.currentOperandTextElement.innerText = computation;
-                
-                this.firstOperand = prev;
-                this.secondOperand = current;
-                this.isResult = true;
-            }
-
-            chooseOperation(operation) {
-                if (this.isEditing) {
-                    this.isEditing = false;
-                }
-                if (this.currentOperand === 'Error') {
-                    this.clear();
-                    return;
-                }
-                if (this.currentOperand === '' && this.previousOperand === '') return;
-                
-                if (this.previousOperand !== '') {
-                    this.compute();
-                }
-                this.operation = operation;
-                this.previousOperand = this.currentOperand;
-                this.currentOperand = '';
-                this.updateDisplay();
-            }
-
-            compute() {
-                let computation;
-                let prev = parseFloat(this.previousOperand);
-                let current = parseFloat(this.currentOperand);
-                let op = this.operation;
-
-                if (isNaN(prev) || isNaN(current)) return;
-
-                switch (op) {
-                    case 'add':
-                        computation = prev + current;
-                        break;
-                    case 'divide':
-                        if (current === 0) {
-                            computation = 'Error';
-                        } else {
-                            computation = prev / current;
-                        }
-                        break;
-                    default:
-                        return;
-                }
-                
-                this.firstOperand = prev;
-                this.secondOperand = current;
-                this.operatorSymbol = this.getOperationSymbol(op);
-                this.previousOperand = `${prev} ${this.operatorSymbol} ${current} =`;
-                this.currentOperand = computation.toString();
-                this.operation = undefined;
-                this.isResult = true;
-                this.isEditing = false;
-                this.updateDisplay();
-            }
-
-            getOperationSymbol(operation) {
-                switch (operation) {
-                    case 'add': return '+';
-                    case 'divide': return '/';
-                    default: return '';
-                }
-            }
-            
-            editOperand(index) {
-                if (!this.isResult) return;
-                
-                this.isEditing = true;
-                this.editingIndex = index;
-
-                const parts = this.previousOperand.split(/([+\/=])/);
-                this.firstOperand = parseFloat(parts[0]);
-                this.secondOperand = parseFloat(parts[2]);
-                this.operatorSymbol = parts[1];
-                
-                this.updateDisplay();
-            }
-
-            updateDisplay() {
-                if (this.isEditing) {
-                    this.previousOperandTextElement.innerHTML = `
-                        <input type="text" class="editable-input" value="${this.firstOperand}" data-index="0" inputmode="decimal">
-                        ${this.operatorSymbol}
-                        <input type="text" class="editable-input" value="${this.secondOperand}" data-index="1" inputmode="decimal">
-                        =
-                    `;
-                    this.currentOperandTextElement.innerText = '';
-                    
-                    const activeInput = this.previousOperandTextElement.querySelector(`[data-index="${this.editingIndex}"]`);
-                    if (activeInput) {
-                        activeInput.focus();
-                        activeInput.setSelectionRange(0, activeInput.value.length);
-                    }
-                } else if (this.operation != null) {
-                    this.previousOperandTextElement.innerHTML = `${this.previousOperand} ${this.getOperationSymbol(this.operation)}`;
-                    this.currentOperandTextElement.innerText = this.currentOperand;
-                } else {
-                    if (this.previousOperand) {
-                        const parts = this.previousOperand.split(/([+\/=])/);
-                        this.previousOperandTextElement.innerHTML = `
-                            <span class="clickable-operand" data-index="0">${parts[0].trim()}</span>
-                            ${parts[1].trim()}
-                            <span class="clickable-operand" data-index="1">${parts[2].trim()}</span>
-                            ${parts[3].trim()}
-                        `;
-                        
-                        const resultValue = parseFloat(this.currentOperand);
-                        if (!isNaN(resultValue)) {
-                            let converted = this.convertResult(resultValue);
-                            this.currentOperandTextElement.innerHTML = `
-                                <div class="result-container">
-                                    <span>USD: ${converted.usd.toFixed(2)}</span>
-                                    <span>COP: ${converted.cop.toLocaleString('es-CO')}</span>
-                                </div>
-                            `;
-                        } else {
-                             this.currentOperandTextElement.innerText = this.currentOperand;
-                        }
-                    } else {
-                        this.previousOperandTextElement.innerText = '';
-                        this.currentOperandTextElement.innerText = this.currentOperand;
-                    }
-                }
+                resultadoElement.textContent = `El resultado es: ${formatoCOP}`;
+                resultadoElement.style.color = "#28a745";
             }
         }
 
-        /*
-         * EVENT LISTENERS: Conectan los botones y el teclado a la lógica de la calculadora.
-         */
-        const numberButtons = document.querySelectorAll('[data-number]');
-        const operatorButtons = document.querySelectorAll('[data-operator]');
-        const equalsButton = document.querySelector('[data-equals]');
-        const allClearButton = document.querySelector('[data-all-clear]');
-        const deleteButton = document.querySelector('[data-delete]');
-        const previousOperandTextElement = document.querySelector('[data-previous-operand]');
-        const currentOperandTextElement = document.querySelector('[data-current-operand]');
-        const currencyButtons = document.querySelectorAll('.currency-button');
+        const dividendoInput = document.getElementById('dividendo');
+        const divisorInput = document.getElementById('divisor');
 
-        const calculator = new Calculator(previousOperandTextElement, currentOperandTextElement);
-        document.querySelector(`[data-currency="${calculator.currentCurrency}"]`).classList.add('active');
-
-        currencyButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                currencyButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                calculator.setCurrency(button.dataset.currency);
-            });
-        });
-
-        numberButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                calculator.processNumberInput(button.innerText);
-            });
-        });
-
-        operatorButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                calculator.chooseOperation(button.dataset.operator);
-            });
-        });
-
-        equalsButton.addEventListener('click', () => {
-                calculator.compute();
-        });
-
-        allClearButton.addEventListener('click', () => {
-            calculator.clear();
-        });
-
-        deleteButton.addEventListener('click', () => {
-            calculator.delete();
-        });
-
-        // Manejo de eventos del teclado
-        document.addEventListener('keydown', e => {
-            if (calculator.isEditing) {
-                if (e.key === 'Backspace' || e.key === 'Delete') {
-                    calculator.delete();
-                    e.preventDefault();
-                    return;
-                } else if (e.key === 'Enter' || e.key === '=') {
-                    calculator.compute();
-                    e.preventDefault();
-                    return;
-                } else if ((e.key >= '0' && e.key <= '9') || e.key === '.') {
-                    return; 
-                }
-            }
-
-            if (e.key === 'Backspace' || e.key === 'Delete') {
-                e.preventDefault();
-                calculator.delete();
-            } else if ((e.key >= '0' && e.key <= '9') || e.key === '.') {
-                calculator.processNumberInput(e.key);
-            } else if (['+', '/'].includes(e.key)) {
-                calculator.chooseOperation(e.key === '+' ? 'add' : 'divide');
-            } else if (e.key === 'Enter' || e.key === '=') {
-                calculator.compute();
-            }
-        });
-
-        // Maneja el clic en los operandos para iniciar la edición
-        previousOperandTextElement.addEventListener('click', (e) => {
-            const clickedElement = e.target;
-            if (clickedElement.classList.contains('clickable-operand')) {
-                const index = parseInt(clickedElement.dataset.index);
-                if (calculator.isEditing && calculator.editingIndex === index) {
-                    return;
-                }
-                calculator.editOperand(index);
-            }
-        });
+        dividendoInput.addEventListener('input', realizarDivision);
+        divisorInput.addEventListener('input', realizarDivision);
     </script>
+
 </body>
 </html>
