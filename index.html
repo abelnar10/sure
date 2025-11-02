@@ -3,71 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>:)</title>
+    <title>Herramientas de Arbitraje</title>
+    
     <style>
+        /* --- ESTILOS GLOBALES Y COMPARTIDOS --- */
         body {
-            font-family: sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 2rem; 
             margin: 0;
+            padding: 2rem; 
+            min-height: 100vh;
+            box-sizing: border-box;
         }
+        
         .container {
-            background-color: white;
+            background: #ffffff;
+            border-radius: 10px;
             padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
             width: 90%;
-            max-width: 800px;
+            text-align: center;
+            box-sizing: border-box; 
         }
-        h1 {
-            color: #333;
+
+        .container h1 {
+            color: #1c1e21;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
         }
-        input {
+
+        /* --- ESTILOS CALCULADORA 1: CIERRE (Encapsulados) --- */
+        #calculadora-cierre {
+            max-width: 400px; 
+        }
+        #calculadora-cierre #cuotaInput {
+            font-size: 1.5rem;
+            padding: 12px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            width: calc(100% - 26px); 
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        #calculadora-cierre button {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #1877f2;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 20px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+        #calculadora-cierre button:hover {
+            background-color: #166fe5;
+        }
+        #calculadora-cierre #resultado {
+            margin-top: 1.5rem;
+            font-size: 1.6rem; /* Un poco más pequeño para el texto nuevo */
+            font-weight: bold;
+            height: 30px; 
+            line-height: 1.4;
+        }
+        #calculadora-cierre .exito {
+            color: #28a745; /* Verde */
+        }
+        #calculadora-cierre .error {
+            color: #dc3545; /* Rojo */
+        }
+
+        /* --- ESTILOS CALCULADORA 2: DIVISIÓN (Encapsulados) --- */
+        #calculadora-division {
+            max-width: 800px; 
+        }
+        #calculadora-division input {
             padding: 0.5rem;
             margin: 0.5rem 0;
             border: 1px solid #ccc;
             border-radius: 4px;
             width: 100%;
             box-sizing: border-box;
+            font-size: 1rem; 
         }
-        #resultados-container {
+        #calculadora-division #resultados-container {
             display: flex;
             justify-content: space-around;
             gap: 20px;
             text-align: left;
             margin-top: 1.5rem;
-            flex-wrap: wrap; /* Permite que las columnas se envuelvan en pantallas pequeñas */
+            flex-wrap: wrap; 
         }
-        .columna {
+        #calculadora-division .columna {
             flex: 1;
             min-width: 250px;
             background-color: #f9f9f9;
             padding: 1rem;
             border-radius: 6px;
         }
-        .columna h3 {
+        #calculadora-division .columna h3 {
             margin-top: 0;
             color: #555;
         }
-        .columna p {
+        #calculadora-division .columna p {
             font-size: 1.1rem;
             font-weight: bold;
             margin: 0.5rem 0;
         }
-        .columna span {
-            color: #28a745;
-            font-weight: normal;
+        #calculadora-division .columna span {
+            font-weight: normal; 
         }
+
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>:)</h1>
+    <div id="calculadora-cierre" class="container">
+        <h1>Calculadora de Cierre</h1>
+        <input type="text" id="cuotaInput" placeholder="Ingresa cuota (ej: 5.13)">
+        <button onclick="encontrarPar()">Buscar Cierre</button>
+        <div id="resultado"></div>
+    </div>
+
+    <div id="calculadora-division" class="container">
+        <h1>Calculadora de División y Arbitraje</h1>
         <input type="text" id="dividendo" placeholder="Ingresa el pago potencial (ej. 10+90)">
         <input type="number" id="divisor" placeholder="Ingresa la cuota">
         
@@ -76,6 +140,7 @@
                 <h3>Rush/pinna a beto</h3>
                 <p>Resultado en COP: <span id="resultado-cop-1"></span></p>
                 <p>Equivalente en USD: <span id="resultado-usd-1"></span></p>
+                <p>Resultado del arbitraje: <span id="resultado-arbitraje"></span></p> 
             </div>
             <div class="columna">
                 <h3>beto a rush/pinna</h3>
@@ -85,24 +150,113 @@
         </div>
     </div>
 
+
     <script>
+        
+        // --- LÓGICA CALCULADORA 1: CIERRE ---
+        
+        // --- ✅ LISTA ACTUALIZADA ---
+        const miListaDePares = "2.00->2.11,1.99->2.12,1.98->2.13,1.97->2.14,1.96->2.15,1.95->2.16,1.94->2.17,1.93->2.19,1.92->2.20,1.91->2.21,1.90->2.22,1.89->2.23,1.88->2.25,1.87->2.26,1.86->2.27,1.85->2.29,1.84->2.30,1.83->2.31,1.82->2.33,1.81->2.34,1.80->2.36,1.79 ->  2.38    ,1.78   ->  2.39    ,1.77   ->  2.41    ,1.76   ->  2.43    ,1.75   ->  2.44    ,1.74   ->  2.46    ,1.73   ->  2.48    ,1.72   ->  2.50    ,1.71   ->  2.52    ,1.70   ->  2.54    ,1.69   ->  2.56    ,1.68   ->  2.58    ,1.67   ->  2.60    ,1.66   ->  2.63    ,1.65   ->  2.65    ,1.64   ->  2.67    ,1.63   ->  2.7 ,1.62   ->  2.72    ,1.61   ->  2.75    ,1.60   ->  2.78    ,1.59   ->  2.80    ,1.58   ->  2.83    ,1.57   ->  2.86    ,1.56   ->  2.90    ,1.55   ->  2.93    ,1.54   ->  2.96    ,1.53   ->  3.00    ,1.52   ->  3.02    ,1.51   ->  3.07    ,1.50   ->  3.11    ,1.49   ->  3.15    ,1.48   ->  3.19    ,1.47   ->  3.24    ,1.46   ->  3.28    ,1.45   ->  3.33    ,1.44   ->  3.38    ,1.43   ->  3.44    ,1.42   ->  3.49    ,1.41   ->  3.55    ,1.40   ->  3.61    ,1.39   ->  3.67    ,1.38   ->  3.74    ,1.37   ->  3.81    ,1.36   ->  3.89    ,1.35   ->  3.97    ,1.34   ->  4.05    ,1.33   ->  4.14    ,1.32   ->  4.24    ,1.31   ->  4.34    ,1.30   ->  4.44    ,1.29   ->  4.56    ,1.28   ->  4.68    ,1.27   ->  4.81    ,1.26   ->  4.96    ,1.25   ->  5.11    ,1.24   ->  5.28    ,1.23   ->  5.46    ,1.22   ->  5.66    ,1.21   ->  5.87    ,1.20   ->  6.11    ,1.19   ->  6.37    ,1.18   ->  6.77    ,1.17   ->  6.99    ,1.16   ->  7.36    ,1.15   ->  7.78    ,1.14   ->  8.25    ,1.13   ->  8.80    ,1.12   ->  9.44    ,1.11   ->  10.2    ,1.10   ->  11.11   ,1.09   ->  12.22   ,1.08   ->  13.61   ,1.07   ->  15.40   ,1.06   ->  17.78   ,1.05   ->  21.11   ,1.04   ->  26.11   ,1.03   ->  34.44   ,1.02   ->  51.11   ,1.01   ->  101.11";
+
+        const paresDeCierre = {};
+        const pares = miListaDePares.split(','); 
+        
+        pares.forEach(par => {
+            const valores = par.split('->');
+            if (valores.length === 2) {
+                // El .trim() elimina los espacios en blanco extra
+                const v1 = valores[0].trim(); 
+                const v2 = valores[1].trim();
+                paresDeCierre[v1] = v2;
+                paresDeCierre[v2] = v1;
+            }
+        });
+
+        // --- ✅ FUNCIÓN DE BÚSQUEDA MODIFICADA ---
+        function encontrarPar() {
+            const inputEl = document.getElementById('cuotaInput');
+            const resultadoEl = document.getElementById('resultado');
+            const valorBuscado = inputEl.value.trim();
+            
+            resultadoEl.textContent = '';
+            resultadoEl.className = '';
+
+            const numBuscado = parseFloat(valorBuscado);
+
+            // 1. Validar si es un número
+            if (isNaN(numBuscado)) {
+                resultadoEl.textContent = 'Entrada inválida';
+                resultadoEl.className = 'error';
+                return;
+            }
+
+            // 2. Buscar coincidencia EXACTA primero
+            const parExacto = paresDeCierre[valorBuscado];
+            if (parExacto) {
+                resultadoEl.textContent = `Cerrar con: ${parExacto}`;
+                resultadoEl.className = 'exito';
+                return; // Encontrado, terminamos.
+            }
+
+            // 3. Si no hay coincidencia exacta, buscar el MÁS CERCANO
+            let minDiferencia = Infinity;
+            let claveMasCercana = "";
+
+            // Iteramos sobre todas las claves que tenemos
+            for (const clave of Object.keys(paresDeCierre)) {
+                const numClave = parseFloat(clave);
+                // Calculamos la diferencia absoluta (sin importar si es +/-)
+                const diferencia = Math.abs(numBuscado - numClave);
+
+                // Si esta diferencia es la más pequeña que hemos visto...
+                if (diferencia < minDiferencia) {
+                    minDiferencia = diferencia; // ...la guardamos
+                    claveMasCercana = clave;    // ...y guardamos la clave (ej: "5.11")
+                }
+            }
+
+            // 4. Mostrar el resultado más cercano
+            if (claveMasCercana) { 
+                const parEncontrado = paresDeCierre[claveMasCercana];
+                // Usamos innerHTML para poder poner la flecha '→'
+                resultadoEl.innerHTML = `Cercano (${claveMasCercana}) &rarr; ${parEncontrado}`;
+                resultadoEl.className = 'exito';
+            } else {
+                resultadoEl.textContent = 'Lista de pares vacía';
+                resultadoEl.className = 'error';
+            }
+        }
+        
+        document.getElementById('cuotaInput').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                encontrarPar();
+            }
+        });
+
+        
+        // --- LÓGICA CALCULADORA 2: DIVISIÓN ---
+        // (Esta parte no se modificó)
+
         function realizarDivision() {
             const dividendoString = document.getElementById('dividendo').value;
             const divisor = parseFloat(document.getElementById('divisor').value);
             
-            const tasaCambioUSD = 0.00025; // Tasa de cambio aproximada: 1 COP = 0.00025 USD
-            const tasaCambioCOP = 1 / tasaCambioUSD; // 1 USD = 4000 COP
+            const tasaCambioUSD = 0.00025;
+            const tasaCambioCOP = 1 / tasaCambioUSD;
 
             const resultadoCOP1 = document.getElementById('resultado-cop-1');
             const resultadoUSD1 = document.getElementById('resultado-usd-1');
             const resultadoUSD2 = document.getElementById('resultado-usd-2');
             const resultadoCOP2 = document.getElementById('resultado-cop-2');
+            const resultadoArbitraje = document.getElementById('resultado-arbitraje'); 
             
             const limpiarResultados = () => {
                 resultadoCOP1.textContent = '';
                 resultadoUSD1.textContent = '';
                 resultadoUSD2.textContent = '';
                 resultadoCOP2.textContent = '';
+                resultadoArbitraje.textContent = ''; 
+                resultadoArbitraje.style.color = ''; 
             };
 
             if (isNaN(divisor) || dividendoString === "") {
@@ -124,7 +278,6 @@
             } else {
                 const resultado = dividendo / divisor;
 
-                // --- Columna 1: de COP a USD ---
                 const valorEnMiles = Math.round(resultado) * 1000;
                 const copAFormatear = valorEnMiles;
                 const usdCalculado = copAFormatear * tasaCambioUSD;
@@ -146,7 +299,29 @@
                 resultadoCOP1.textContent = formatoCOP1;
                 resultadoUSD1.textContent = formatoUSD1;
 
-                // --- Columna 2: de USD a COP ---
+                const retornoPotencial = copAFormatear * divisor;
+                const inversionReal = dividendo * 1000;
+                const gananciaArbitraje = retornoPotencial - inversionReal;
+                
+                if (gananciaArbitraje < 0) {
+                    resultadoArbitraje.style.color = 'red'; 
+                } else if (gananciaArbitraje >= 1 && gananciaArbitraje <= 9000) {
+                    resultadoArbitraje.style.color = 'darkorange'; 
+                } else if (gananciaArbitraje > 9000) {
+                    resultadoArbitraje.style.color = 'green'; 
+                } else {
+                    resultadoArbitraje.style.color = 'black'; 
+                }
+
+                const formatoArbitraje = new Intl.NumberFormat('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(gananciaArbitraje);
+                
+                resultadoArbitraje.textContent = formatoArbitraje;
+
                 const usdAFormatear = resultado;
                 const copCalculado = Math.round(usdAFormatear * tasaCambioCOP);
 
@@ -174,6 +349,7 @@
 
         dividendoInput.addEventListener('input', realizarDivision);
         divisorInput.addEventListener('input', realizarDivision);
+
     </script>
 </body>
 </html>
